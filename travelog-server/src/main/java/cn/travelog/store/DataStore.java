@@ -1,6 +1,7 @@
 package cn.travelog.store;
 
 import cn.travelog.model.Models.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -53,15 +54,17 @@ public class DataStore {
 
     private final AtomicLong seq = new AtomicLong(1000);
 
-    public DataStore() {
-        seedUsers();
+    public DataStore(@Value("${travelog.seed-demo:false}") boolean seedDemo) {
         seedCities();
-        seedVisits();
-        seedMemory();
-        seedPosts();
-        seedSocial();
-        seedNotifications();
-        seedAdmin();
+        if (seedDemo) {
+            seedUsers();
+            seedVisits();
+            seedMemory();
+            seedPosts();
+            seedSocial();
+            seedNotifications();
+            seedAdmin();
+        }
     }
 
     public String id(String prefix) {

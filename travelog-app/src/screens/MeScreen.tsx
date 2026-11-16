@@ -44,7 +44,7 @@ export function MeScreen() {
   return (
     <div className="screen">
       <div className="apphead">
-        <div><h1>我的</h1><div className="sub">{user.joined} 加入 · 已实名</div></div>
+        <div><h1>我的</h1><div className="sub">{user.joined ? `${user.joined} 加入` : '新用户'} · {user.verified ? '手机已注册' : '资料未完成'}</div></div>
         <button className="iconbtn" onClick={() => toast('设置已整合在本页')} aria-label="设置"><Icon name="settings" size={18} /></button>
       </div>
 
@@ -53,7 +53,7 @@ export function MeScreen() {
           <Avatar initial={user.initial} hue={user.hue} size={62} radius={20} />
           <div style={{ minWidth: 0 }}>
             <h2>{user.name}</h2>
-            <div className="meta">{user.age} 岁 · {user.city} <span className="v"><Icon name="shield" size={10} />实名已核验</span></div>
+            <div className="meta">{user.age} 岁 · {user.city || '未填写城市'} <span className="v"><Icon name="shield" size={10} />{user.verified ? '手机已注册' : '未完成注册'}</span></div>
             <div className="meta" style={{ marginTop: 3 }}>{user.bio}</div>
           </div>
           <button className="iconbtn plain edit" style={{ marginLeft: 'auto', alignSelf: 'flex-start' }} onClick={() => setEditOpen(true)} aria-label="编辑资料">
@@ -69,7 +69,12 @@ export function MeScreen() {
       </div>
 
       <div className="city-strip">
-        {lit.map((c) => (
+        {lit.length === 0 ? (
+          <div className="city-empty">
+            <b>还没有点亮城市</b>
+            <span>搜索或从地图点亮第一座城市</span>
+          </div>
+        ) : lit.map((c) => (
           <button className="city-tile" key={c.name} onClick={() => { useAppStore.getState().setCurrentCity(c.name); navigate('/map'); toast(`已切换到 ${c.name}`); }}>
             <b>{c.name}</b><span>{c.visits} 次 · {c.days} 天</span>
           </button>
@@ -91,9 +96,9 @@ export function MeScreen() {
             <span className="r"><Switch checked={settings[key]} onChange={(v) => { toggleSetting(key, v); toast('设置已更新'); }} label={title} /></span>
           </label>
         ))}
-        <button className="mrow" onClick={() => toast('黑名单：2 人 · 屏蔽后互不可见')}>
+        <button className="mrow" onClick={() => toast('黑名单为空')}>
           <span className="ic"><Icon name="shield" size={15} /></span>
-          <span className="t">黑名单<span>屏蔽后互不可见</span></span><span className="r">2 人 <Icon name="right" size={13} /></span>
+          <span className="t">黑名单<span>屏蔽后互不可见</span></span><span className="r">0 人 <Icon name="right" size={13} /></span>
         </button>
         <button className="mrow" onClick={() => toast('定位 7 天后降精度为城市级；可随时关闭')}>
           <span className="ic"><Icon name="lock" size={15} /></span>
@@ -123,7 +128,7 @@ export function MeScreen() {
           <span className="ic"><Icon name="logout" size={15} /></span><span className="t">退出登录<span>下次打开需要重新验证手机号</span></span><span className="r"><Icon name="right" size={13} /></span>
         </button>
         <button className="mrow" onClick={() => setResetOpen(true)}>
-          <span className="ic"><Icon name="refresh" size={15} /></span><span className="t">重置演示数据<span>回到首次使用的状态</span></span><span className="r"><Icon name="right" size={13} /></span>
+          <span className="ic"><Icon name="refresh" size={15} /></span><span className="t">重置本机数据<span>回到首次使用、无历史记录的状态</span></span><span className="r"><Icon name="right" size={13} /></span>
         </button>
         <button className="mrow danger" onClick={() => setDeleteOpen(true)}>
           <span className="ic"><Icon name="trash" size={15} /></span><span className="t">注销账号<span>7 天冷静期 · 公共内容去标识化</span></span><span className="r"><Icon name="right" size={13} /></span>
@@ -138,7 +143,7 @@ export function MeScreen() {
           <input value={name} onChange={(e) => setName(e.target.value)} />
           <label>一句话简介</label>
           <input value={bio} onChange={(e) => setBio(e.target.value)} />
-          <p className="hint">共享模式下，昵称、年龄段与旅行标签会展示在名片中；手机号和实名信息不会展示。</p>
+          <p className="hint">共享模式下，昵称、年龄段与旅行标签会展示在名片中；手机号不会展示。</p>
         </div>
       </Sheet>
 
@@ -173,7 +178,7 @@ export function MeScreen() {
       <Sheet
         open={resetOpen}
         onClose={() => setResetOpen(false)}
-        title="重置演示数据"
+        title="重置本机数据"
         footer={(
           <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
             <button className="btn ghost" style={{ flex: 1 }} onClick={() => setResetOpen(false)}>取消</button>
@@ -181,7 +186,7 @@ export function MeScreen() {
           </div>
         )}
       >
-        <p className="hint" style={{ fontSize: 12.5, lineHeight: 1.8 }}>将清除本机的点亮记录、回忆盒、共享状态与发布内容，回到首次使用的演示起点。此操作不可撤销。</p>
+        <p className="hint" style={{ fontSize: 12.5, lineHeight: 1.8 }}>将清除本机的点亮记录、回忆盒、共享状态与发布内容，回到首次使用的空白状态。此操作不可撤销。</p>
       </Sheet>
 
       <Sheet

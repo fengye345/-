@@ -174,7 +174,7 @@ export function Onboarding() {
   const finishAlbum = (choice: 'UPLOAD' | 'SKIP') => {
     updateAuth({ album: choice, albumCount: choice === 'UPLOAD' ? albumFiles.length : 0 });
     setStep('permission');
-    if (choice === 'UPLOAD') toast(`已选择 ${albumFiles.length} 张照片 · 进入后整理`, 'image');
+    if (choice === 'UPLOAD') toast(`已选择 ${albumFiles.length} 张照片 · 仅本机预览`, 'image');
   };
 
   const onFiles = (files: FileList | null) => {
@@ -478,7 +478,7 @@ export function Onboarding() {
           <div className="auth-heading">
             <div className="k">ALBUM · OPTIONAL</div>
             <h1>把照片也带进来？</h1>
-            <p>{chosen.name}点亮后，可以从相册选几张照片，进入后自动整理成回忆盒草稿。</p>
+            <p>{chosen.name}点亮后，可以从相册选几张照片在本机预览；进入后在回忆盒里由你决定是否添加。</p>
           </div>
 
           <div className="album-stack">
@@ -486,8 +486,8 @@ export function Onboarding() {
               <img key={src} src={src} alt="" style={{ transform: `rotate(${(i - 1) * 5}deg) translateX(${i * 6}px)` }} />
             ))}
             <div className="album-stack-copy">
-              <b>{albumFiles.length ? `已选择 ${albumFiles.length} 张` : '回忆盒草稿'}</b>
-              <span>仅本人可见</span>
+              <b>{albumFiles.length ? `已选择 ${albumFiles.length} 张` : '相册预览'}</b>
+              <span>仅本机可见</span>
             </div>
           </div>
 
@@ -498,7 +498,7 @@ export function Onboarding() {
             >
               <span className="ico"><Icon name="image" size={17} /></span>
               <b>上传相册照片</b>
-              <span>选择 1–9 张，进入后自动去重</span>
+              <span>选择 1–9 张，仅本机预览</span>
             </button>
             <button
               className={albumIntent === 'SKIP' ? 'on' : ''}
@@ -575,7 +575,7 @@ export function Onboarding() {
               transform="rotate(-90 75 75)"
             />
           </svg>
-          <div className="val">30<small>分钟</small></div>
+          <div className="val">1<small>座</small></div>
         </div>
       </div>
       <div className="auth-copy">
@@ -584,9 +584,9 @@ export function Onboarding() {
         <p>你选择了 {chosenCity.name} 作为第一座城市。收下这张城市卡，之后每次到达都会记在这里。</p>
       </div>
       <div className="auth-facts">
-        <div><b>3 个</b><span>定位点</span></div>
-        <div><b>38m</b><span>定位精度</span></div>
-        <div><b>47 分</b><span>本次停留</span></div>
+        <div><b>1 座</b><span>首座城市</span></div>
+        <div><b>手动</b><span>点亮方式</span></div>
+        <div><b>仅本人</b><span>可见范围</span></div>
       </div>
       <div className="auth-actions">
         <button className="btn primary lg" onClick={enterApp}><Icon name="locate" size={17} />点亮 {chosenCity.name}，进入旅迹</button>

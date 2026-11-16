@@ -40,7 +40,7 @@ describe('registration state', () => {
       name: '小满', age: 25, city: '杭州', tags: ['摄影'], hue: 'a1',
     });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    const raw = memory.get('travelog.app.v1') ?? '';
+    const raw = memory.get('travelog.app.v2') ?? '';
     expect(raw).toContain('"profileComplete":true');
     expect(raw).toContain('小满');
   });
@@ -71,14 +71,6 @@ describe('registration state', () => {
     useAppStore.getState().logout();
     expect(useAppStore.getState().auth).toBeUndefined();
     expect(useAppStore.getState().onboarded).toBe(false);
-    expect(useAppStore.getState().boxes.length).toBeGreaterThan(0);
-  });
-
-  it('demo entry skips registration and lights Hangzhou', () => {
-    useAppStore.getState().enterDemo();
-    const state = useAppStore.getState();
-    expect(state.auth?.profileComplete).toBe(true);
-    expect(state.onboarded).toBe(true);
-    expect(state.cities['杭州']?.lit).toBe(true);
+    expect(useAppStore.getState().boxes.length).toBe(0);
   });
 });

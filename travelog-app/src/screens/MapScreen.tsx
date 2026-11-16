@@ -10,7 +10,7 @@ import { Portal } from '../components/Portal';
 import { ProvinceMap } from '../components/ProvinceMap';
 import { loadProvinceGeo, type ProvinceCity, type ProvinceGeo } from '../data/provinceGeo';
 import { canonicalCityKey, matchProvinceCity } from '../lib/cityMatch';
-import { Avatar, Badge, Ring } from '../components/ui';
+import { Avatar, Badge, Empty, Ring } from '../components/ui';
 import { useToast } from '../components/Toast';
 import { CITY_META } from '../data/seed';
 import type { CityRecord } from '../types';
@@ -216,7 +216,7 @@ export function MapScreen() {
   const boxCount = useAppStore((s) => s.boxes.filter((b) => b.city === currentCity).length);
   const provinces = new Set(Object.values(cities).filter((c) => c.lit).map((c) => c.province)).size;
   const provincePct = Math.round((provinces / 34) * 100);
-  const meta = record ?? { province: CITY_META[currentCity]?.province ?? '浙江省', visits: 4, days: 11 };
+  const meta = record ?? { province: CITY_META[currentCity]?.province ?? '', visits: 0, days: 0 };
   const provinceCities = province?.cities ?? [];
   const provinceLit = provinceCities.filter((c) => matchProvinceCity(cities, c)?.lit);
   const provinceVisits = provinceLit.reduce((n, c) => n + (matchProvinceCity(cities, c)?.visits ?? 0), 0);
@@ -268,7 +268,7 @@ export function MapScreen() {
       const rec = await api.visits.lightUp(currentCity);
       setLit({
         name: currentCity,
-        province: rec.province || '浙江省',
+        province: rec.province || '',
         visits: rec.visits || 1,
         days: rec.days || 1,
         first: '今天',
@@ -287,7 +287,7 @@ export function MapScreen() {
               <Icon name="pin" size={15} /> {currentCity}
               <span className="dot" />
               <span style={{ fontWeight: 500, color: 'var(--muted)', fontSize: 10.5 }}>
-                {isLit ? '已点亮' : '记录中'}
+                {isLit ? '已点亮' : '未点亮'}
               </span>
             </button>
             <div style={{ display: 'flex', gap: 7 }}>
@@ -319,7 +319,7 @@ export function MapScreen() {
           )}
 
           <div className="map-tools">
-            <button className="iconbtn" onClick={() => toast('已定位：杭州市西湖区 · 精度 38m', 'locate')} aria-label="定位">
+            <button className="iconbtn" onClick={() => toast('尚未获取定位 · 可在系统设置中开启')} aria-label="定位">
               <Icon name="locate" size={18} />
             </button>
             <button className="iconbtn" onClick={() => toast('图层：点亮城市 / 省份完成度 / 此刻现场')} aria-label="图层">
@@ -354,14 +354,14 @@ export function MapScreen() {
               <div className="n">{provinceLit.length}<small>/ {provinceCities.length} 座已点亮</small></div>
               <div className="l">{province.name} · 仅显示地级市 · 到访 {provinceVisits} 次</div>
               <div className="bar">
-                <i style={{ width: `${Math.max(4, Math.round((provinceLit.length / Math.max(1, provinceCities.length)) * 100))}%` }} />
+                <i style={{ width: `${Math.round((provinceLit.length / Math.max(1, provinceCities.length)) * 100)}%` }} />
               </div>
             </div>
           ) : (
             <div className="map-stats">
               <div className="n">{litCount}<small>座城市</small></div>
               <div className="l">省级完成度 {provincePct}% · 点击省份看地级市</div>
-              <div className="bar"><i style={{ width: `${Math.max(4, provincePct)}%` }} /></div>
+              <div className="bar"><i style={{ width: `${Math.max(0, provincePct)}%` }} /></div>
             </div>
           )}
 
@@ -390,34 +390,34 @@ export function MapScreen() {
               <div className="city-panel-in">
                 <div className="cp-top">
                   <div>
-                    <div className="cp-kicker"><i />{isLit ? 'CURRENT CITY' : 'ARRIVING'} · {meta.province}</div>
+                    <div className="cp-kicker"><i />{isLit ? 'CURRENT CITY' : 'NOT LIT YET'} · {meta.province || '—'}</div>
                     <div className="cp-city">
                       <b>{currentCity}</b>
-                      <span>{isLit ? `已点亮 · 第 ${meta.visits || 1} 次到访` : '正在记录这次到达'}</span>
+                      <span>{isLit ? `已点亮 · ${meta.visits} 次到访` : '尚未点亮 · 还没有到访记录'}</span>
                     </div>
                   </div>
                   <div className="cp-arrow">{isLit ? <Icon name="right" size={15} /> : <Icon name="locate" size={15} />}</div>
                 </div>
                 <div className="cp-stats">
-                  <div className="cp-stat"><b>{pending?.minutes ?? meta.visits ?? 1}<small>{isLit ? '' : ' 分'}</small></b><span>{isLit ? '到访次数' : '本次停留'}</span></div>
-                  <div className="cp-stat"><b>{pending?.points ?? meta.days ?? 1}<small>{isLit ? '' : ' 个'}</small></b><span>{isLit ? '累计天数' : '有效定位点'}</span></div>
+                  <div className="cp-stat"><b>{pending?.minutes ?? meta.visits ?? 0}<small>{isLit ? '' : ' 分'}</small></b><span>{isLit ? '到访次数' : '本次停留'}</span></div>
+                  <div className="cp-stat"><b>{pending?.points ?? meta.days ?? 0}<small>{isLit ? '' : ' 个'}</small></b><span>{isLit ? '累计天数' : '有效定位点'}</span></div>
                   <div className="cp-stat">
-                    <b>{isLit ? boxCount : pending?.accuracy ?? 38}<small>{isLit ? '' : ' m'}</small></b>
+                    <b>{isLit ? boxCount : pending ? pending.accuracy : '—'}<small>{isLit || !pending ? '' : ' m'}</small></b>
                     <span>{isLit ? '回忆盒' : '定位精度'}</span>
                   </div>
                 </div>
                 <div className="cp-progress">
-                  <Ring value={isLit ? 1 : 1} size={30} stroke={2.5} />
+                  <Ring value={isLit ? 1 : 0} size={30} stroke={2.5} />
                   <div className="t">
-                    <b>{isLit ? '本次停留 47 分钟' : '已满足点亮条件'}</b>
-                    <span>{isLit ? '定位精度 38m · 已记入第 4 次到访' : '30 分钟 + 2 个定位点 · 间隔 ≥ 10 分钟'}</span>
+                    <b>{isLit ? `已点亮 · ${meta.visits} 次到访` : '还没有定位记录'}</b>
+                    <span>{isLit ? '每次到达会单独记入城市卡' : '可手动点亮；自动判定需 30 分钟 + 2 个定位点'}</span>
                   </div>
                   <button
                     className="go"
                     disabled={busy}
                     onClick={(e) => { e.stopPropagation(); if (!isLit) doLightUp(); else setCardOpen(true); }}
                   >
-                    {busy ? '判定中…' : isLit ? '查看城市卡' : '点亮它'}
+                    {busy ? '判定中…' : isLit ? '查看城市卡' : '手动点亮'}
                   </button>
                 </div>
               </div>
@@ -433,8 +433,7 @@ export function MapScreen() {
         sub={`${meta.province} · ${record?.deep ? '深度点亮' : isLit ? '已点亮' : '未点亮'}`}
         footer={(
           <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-            <button className="btn ghost" style={{ flex: 1 }} onClick={() => toast('已生成分享图 · 精确到访点已隐藏', 'share')}>
-              <Icon name="share" size={16} />分享城市卡
+            <button className="btn ghost" style={{ flex: 1 }} onClick={() => toast('分享图导出尚未接入')}>              <Icon name="share" size={16} />分享城市卡
             </button>
             <button className="btn primary" style={{ flex: 1 }} onClick={() => { setCardOpen(false); navigate('/memory'); }}>
               <Icon name="layers" size={16} />进入回忆盒
@@ -447,27 +446,29 @@ export function MapScreen() {
           <div className="city-card-name">{currentCity}</div>
           <div className="city-card-meta">首次到访 {record?.first ?? '—'} · 最近 {record?.last ?? '—'}</div>
           <div className="city-card-stats">
-            <div><b>{meta.visits || 1}</b><span>到访次数</span></div>
-            <div><b>{meta.days || 1}</b><span>累计天数</span></div>
+            <div><b>{meta.visits ?? 0}</b><span>到访次数</span></div>
+            <div><b>{meta.days ?? 0}</b><span>累计天数</span></div>
             <div><b>{Object.values(cities).filter((c) => c.lit).length}</b><span>已点亮</span></div>
           </div>
-          <div className="city-card-quote">“秋天的西湖，风把桂花吹到了北山街。”</div>
+          <div className="city-card-quote">{isLit ? '还没有为这座城市留下句子。' : '点亮城市后，这里会出现你的第一张城市卡。'}</div>
         </div>
 
         <div className="section-title" style={{ padding: 0, margin: '4px 0 8px' }}>
           <h2>到访记录</h2><span className="more">仅本人可见</span>
         </div>
         <div className="visit-list">
-          {[
-            ['2026.10.18', '本次 · 进行中', '自动点亮'],
-            ['2026.04.12', '停留 2 天 · 已结束', '自动点亮'],
-            ['2025.10.03', '停留 3 天 · 已结束', '自动点亮'],
-          ].map((r) => (
-            <div className="visit-row" key={r[0]}>
-              <div><b>{r[0]}</b><span>{r[1]}</span></div>
-              <span className="badge on">{r[2]}</span>
+          {isLit && record ? (
+            <div className="visit-row">
+              <div><b>{record.first || '今天'}</b><span>手动点亮 · 首次记录</span></div>
+              <span className="badge on">已记录</span>
             </div>
-          ))}
+          ) : (
+            <div className="empty" style={{ padding: '20px 12px' }}>
+              <div className="ic"><Icon name="pin" size={20} /></div>
+              <b>还没有到访记录</b>
+              <p>点亮城市后，每次到达会单独记入这里</p>
+            </div>
+          )}
         </div>
         <p className="hint" style={{ margin: '10px 2px 0' }}>分享城市卡时不包含精确到访点、同行人和原始轨迹。</p>
       </Sheet>
@@ -503,7 +504,7 @@ export function MapScreen() {
                 onClick={() => {
                   const key = canonicalCityKey(cities, selectedCity);
                   addManualCity(key, province?.name, selectedCity.a);
-                  toast(`${key} 已手动点亮 · 待审核`, 'pin');
+                  toast(`${key} 已手动点亮`, 'pin');
                   setSelectedCity(null);
                 }}
               >
@@ -527,12 +528,12 @@ export function MapScreen() {
             {selectedLit ? (
               <>
                 <div className="prov-city-stats">
-                  <div><b>{selectedRecord?.visits ?? 1}</b><span>到访次数</span></div>
-                  <div><b>{selectedRecord?.days ?? 1}</b><span>累计天数</span></div>
+                  <div><b>{selectedRecord?.visits ?? 0}</b><span>到访次数</span></div>
+                  <div><b>{selectedRecord?.days ?? 0}</b><span>累计天数</span></div>
                   <div><b>{selectedRecord?.first ?? '—'}</b><span>首次到访</span></div>
                 </div>
                 <p className="hint" style={{ margin: '12px 2px 0' }}>
-                  {selectedRecord?.manual ? '该城市为手动补录，审核通过后会计入自动点亮统计。' : '城市卡包含到访记录、回忆盒与分享入口。'}
+                  {selectedRecord?.manual ? '该城市为手动补录记录，会在城市卡中单独标记。' : '城市卡包含到访记录、回忆盒与分享入口。'}
                 </p>
               </>
             ) : (
@@ -552,7 +553,7 @@ export function MapScreen() {
                   </div>
                 </div>
                 <p className="hint" style={{ margin: '0 3px 0' }}>
-                  飞行中转、铁路经停与高速路过不点亮。若你确实到过但未被记录，可手动补录并等待审核。
+                  飞行中转、铁路经停与高速路过不点亮。若你确实到过但未被记录，可手动补录。
                 </p>
               </>
             )}
@@ -562,12 +563,14 @@ export function MapScreen() {
 
       <Sheet open={bellOpen} onClose={() => setBellOpen(false)} title="消息中心" sub={`${unreadCount(notifications)} 条未读`}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {notifications.map((n) => (
+          {notifications.length ? notifications.map((n) => (
             <div className="notice-row" key={n.id}>
               <span className="notice-ico"><Icon name={n.type === 'team' ? 'users' : n.type === 'like' ? 'heart' : 'bell'} size={15} /></span>
               <div><b>{n.title}</b><p>{n.body}</p></div>
             </div>
-          ))}
+          )) : (
+            <Empty icon="bell" title="还没有消息" text="队伍、喜欢和系统通知会出现在这里" />
+          )}
         </div>
         <button className="btn ghost block" style={{ marginTop: 14 }} onClick={() => { markAllRead(); setBellOpen(false); toast('已全部标为已读'); }}>
           全部标为已读

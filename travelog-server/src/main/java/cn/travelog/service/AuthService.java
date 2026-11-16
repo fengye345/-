@@ -56,7 +56,10 @@ public class AuthService {
     }
 
     public Map<String, Object> loginDemo(String channel) {
-        User user = store.users.get("u_me");
+        User user = store.users.values().stream()
+                .filter(u -> "13800000000".equals(u.phone))
+                .findFirst()
+                .orElseGet(() -> createUser("13800000000"));
         Map<String, Object> data = session(user);
         data.put("channel", channel);
         return data;
@@ -85,12 +88,12 @@ public class AuthService {
         u.id = store.id("u");
         u.phone = phone;
         u.nickname = "旅行者" + phone.substring(7);
-        u.bio = "刚刚开始记录旅行。";
+        u.bio = "";
         u.realnameStatus = "PENDING";
         u.createdAt = Instant.now();
         u.settings.put("mapVisible", true);
         u.settings.put("autoLight", true);
-        u.settings.put("albumSync", true);
+        u.settings.put("albumSync", false);
         u.settings.put("shareVisible", true);
         store.users.put(u.id, u);
         store.currentCity.put(u.id, "杭州");

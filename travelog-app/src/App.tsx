@@ -30,9 +30,11 @@ export default function App() {
       const store = useAppStore.getState();
       store.beginRegistration('13800000000');
       if (authStage !== 'profile') {
-        store.completeRegistration({
-          name: '小满', age: 25, city: '杭州', tags: ['摄影', '咖啡'], bio: '拍照、徒步、找本地小店', hue: 'a3',
-        });
+        store.completeRegistration(authStage === 'empty'
+          ? { name: '旅行者', age: 25, city: '杭州', tags: [], bio: '', hue: 'a1' }
+          : {
+            name: '小满', age: 25, city: '杭州', tags: ['摄影', '咖啡'], bio: '拍照、徒步、找本地小店', hue: 'a3',
+          });
       }
       if (authStage === 'album' || authStage === 'permission') {
         store.updateAuth({ city: { name: '杭州', province: '浙江省' }, light: 'LIGHT' });
@@ -40,18 +42,22 @@ export default function App() {
       if (authStage === 'permission') {
         store.updateAuth({ album: 'SKIP' });
       }
+      if (authStage === 'empty') {
+        store.updateAuth({ city: null, light: 'SKIP', album: 'SKIP' });
+        store.finishOnboarding();
+        if (params.get('box') === '1') {
+          const box = store.createBox();
+          window.location.hash = `#/memory/${box.id}`;
+        }
+        if (params.get('state') === 'share') {
+          store.lightUp('杭州', '浙江省');
+          store.startShare();
+        }
+      }
+      if (params.get('sheet') === 'ai') {
+        window.setTimeout(() => useUiStore.getState().openAi(), 0);
+      }
     }
-    if (params.get('demo') !== '1') return;
-    const store = useAppStore.getState();
-    if (!store.auth?.profileComplete) {
-      store.enterDemo();
-    } else {
-      if (!store.cities['杭州']?.lit) store.lightUp('杭州');
-      store.finishOnboarding();
-    }
-    if (params.get('sheet') === 'citysearch') useUiStore.getState().openCitySearch();
-    if (params.get('sheet') === 'ai') useUiStore.getState().openAi();
-    if (params.get('state') === 'share' && !store.share.active) store.startShare();
   }, []);
 
   return (

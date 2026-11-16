@@ -103,9 +103,10 @@ export const api = {
       }
       store.markAiUsed();
       await delay(1150);
-      if (/人多|值得|排队|开放|开门/.test(question)) return { kind: 'crowd', text: question };
-      if (/吃|餐厅|美食|咖啡/.test(question)) return { kind: 'food', text: question };
-      return { kind: 'route', text: question };
+      return {
+        kind: 'route',
+        text: '当前是产品原型，AI 还没有接入实时天气、客流和营业数据。为了避免用假数据演示，我不会生成虚构的路线、餐厅或人流判断；接入真实数据后再给出可直接执行的建议。',
+      };
     },
   },
 };

@@ -57,7 +57,7 @@ export function CitySearchSheet() {
     if (!selected) return;
     addManualCity(selected.city.n);
     close();
-    toast(`${selected.city.n} 已标记为手动点亮 · 审核中`, 'pin');
+    toast(`${selected.city.n} 已手动点亮`, 'pin');
   };
 
   return (
@@ -115,14 +115,16 @@ export function CitySearchSheet() {
             <>
               <div className="city-group"><span>已点亮</span><span>{litCities.length} 座</span></div>
               <div className="city-list">
-                {litCities.map((c) => (
+                {litCities.length ? litCities.map((c) => (
                   <button className="city-row" key={c.name} onClick={() => { setQuery(c.name); }}>
                     <span className="city-flag on">{c.name.slice(0, 1)}</span>
                     <span className="city-info"><b>{c.name}</b><span>{c.province} · {c.visits} 次到访 · {c.days} 天</span></span>
                     {c.name === currentCity ? <Badge tone="live" dot>当前</Badge> : <Badge tone="on">已点亮</Badge>}
                     <span className="city-chev"><Icon name="right" size={14} /></span>
                   </button>
-                ))}
+                )) : (
+                  <p className="hint" style={{ padding: '8px 2px 12px' }}>还没有点亮城市。搜索后可以手动补录，或从地图进入省份点亮。</p>
+                )}
               </div>
               <div className="city-group"><span>热门城市</span><span>点击即可搜索</span></div>
               <div className="chips" style={{ padding: '0 0 10px', flexWrap: 'wrap' }}>
@@ -149,8 +151,8 @@ export function CitySearchSheet() {
 
           {selected.lit ? (
             <div className="menu" style={{ margin: '0 0 12px' }}>
-              <div className="mrow"><span className="ic"><Icon name="calendar" size={15} /></span><span className="t">首次到访<span>{selected.city.n === '杭州' ? '2023-04-06' : '—'}</span></span></div>
-              <div className="mrow"><span className="ic"><Icon name="clock" size={15} /></span><span className="t">最近到访<span>今天</span></span></div>
+              <div className="mrow"><span className="ic"><Icon name="calendar" size={15} /></span><span className="t">首次到访<span>{cities[selected.city.n]?.first || '—'}</span></span></div>
+              <div className="mrow"><span className="ic"><Icon name="clock" size={15} /></span><span className="t">最近到访<span>{cities[selected.city.n]?.last || '—'}</span></span></div>
               <div className="mrow"><span className="ic"><Icon name="layers" size={15} /></span><span className="t">回忆盒<span>可在回忆页查看</span></span></div>
             </div>
           ) : (

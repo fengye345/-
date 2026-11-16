@@ -73,19 +73,20 @@ function PublishSheet({ open, onClose, fromBox, onPublished }: {
   onPublished: (type: TabId) => void;
 }) {
   const toast = useToast();
-  const [type, setType] = useState<'now' | 'today' | 'exp'>('now');
+  const city = useAppStore((s) => s.currentCity);
+  const [type, setType] = useState<'now' | 'today' | 'exp'>('today');
   const [text, setText] = useState('');
-  const [images, setImages] = useState<string[]>(fromBox ? fromBox.photos.slice(0, 3) : ['photos/pic01.jpg', 'photos/pic14.jpg', 'photos/pic10.jpg']);
-  const [onSite, setOnSite] = useState(true);
+  const [images, setImages] = useState<string[]>(fromBox ? fromBox.photos.slice(0, 3) : []);
+  const [onSite, setOnSite] = useState(false);
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState(true);
 
   useEffect(() => {
     if (!open) return;
-    setType('now');
-    setOnSite(true);
-    setText(fromBox ? `从「${fromBox.title}」里挑了几张照片。断桥的风把桂花吹到了北山街，湖边比想象中安静。` : '');
-    setImages(fromBox ? fromBox.photos.slice(0, 3) : ['photos/pic01.jpg', 'photos/pic14.jpg', 'photos/pic10.jpg']);
+    setType('today');
+    setOnSite(false);
+    setText('');
+    setImages(fromBox ? fromBox.photos.slice(0, 3) : []);
   }, [open, fromBox]);
 
   const meta = {
@@ -100,7 +101,7 @@ function PublishSheet({ open, onClose, fromBox, onPublished }: {
     try {
       await api.posts.publish({
         type: (type === 'exp' ? 'long' : type) as PostType,
-        place: '断桥残雪',
+        place: city,
         text: text.trim(),
         img: images[0] ?? null,
         onSite,
@@ -108,7 +109,7 @@ function PublishSheet({ open, onClose, fromBox, onPublished }: {
       });
       onClose();
       onPublished(type === 'today' ? 'today' : type === 'exp' ? 'long' : 'now');
-      toast('已通过审核 · 公共副本已发布，私密原件未受影响', 'check');
+      toast('已发布到本机演示数据 · 未上传服务器', 'check');
     } finally {
       setBusy(false);
     }
@@ -167,8 +168,8 @@ function PublishSheet({ open, onClose, fromBox, onPublished }: {
       <div className="form-card">
         <div className="field-row">
           <span className="ic"><Icon name="pin" size={14} /></span>
-          <div className="t"><b>断桥残雪</b><span>距发布位置 320m</span></div>
-          <span className="ok"><Icon name="check" size={11} />现场校验通过</span>
+          <div className="t"><b>{city}</b><span>定位未开启 · 发布到城市级</span></div>
+          <span className="v">未校验</span>
         </div>
         <div className="field-row">
           <span className="ic"><Icon name="clock" size={14} /></span>
@@ -177,10 +178,10 @@ function PublishSheet({ open, onClose, fromBox, onPublished }: {
         </div>
         <div className="field-row">
           <span className="ic"><Icon name="locate" size={14} /></span>
-          <div className="t">当前位置<span>{onSite ? '在城市内，距地点 320m' : '不在现场 · 只能发布经验'}</span></div>
+          <div className="t">当前位置<span>{onSite ? '已开启现场校验' : '不在现场 · 不能发布「此刻」'}</span></div>
           <Switch checked={!onSite} onChange={(v) => {
             setOnSite(!v);
-            if (v && type === 'now') { setType('exp'); toast('已切换为「长期经验」· 现场标识不可购买或伪造', 'alert'); }
+            if (v && type === 'now') { setType('exp'); toast('不在现场，已切换为「长期经验」', 'alert'); }
           }} label="模拟不在现场" />
         </div>
       </div>
@@ -192,10 +193,10 @@ function PublishSheet({ open, onClose, fromBox, onPublished }: {
       {preview ? (
         <div className="preview-mini">
           <div className="k">发布后所有人可见</div>
-          <div className="line"><span>位置精度</span><b>西湖景区（商圈级）</b></div>
+          <div className="line"><span>位置精度</span><b>{city}（城市级）</b></div>
           <div className="line"><span>EXIF 坐标</span><b>已移除</b></div>
-          <div className="line"><span>人脸 / 车牌 / 门牌</span><b>{images.length ? '已检测 1 处，将自动模糊' : '无'}</b></div>
-          <div className="line"><span>原回忆盒</span><b>权限不变 · 仅本人可见</b></div>
+          <div className="line"><span>人脸 / 车牌 / 门牌</span><b>{images.length ? '未检测' : '未上传图片'}</b></div>
+          <div className="line"><span>原回忆盒</span><b>{fromBox ? '权限不变 · 仅本人可见' : '无'}</b></div>
         </div>
       ) : null}
       <p className="hint" style={{ margin: '10px 2px 0' }}>新用户前 3 条内容先审后发；敏感内容进入机器 + 人工审核队列。</p>
@@ -207,7 +208,6 @@ export function DiscoverScreen() {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const toast = useToast();
-  const openAi = useUiStore((s) => s.openAi);
   const openCitySearch = useUiStore((s) => s.openCitySearch);
   const currentCity = useAppStore((s) => s.currentCity);
   const posts = useAppStore((s) => s.posts);
@@ -263,7 +263,7 @@ export function DiscoverScreen() {
     now: posts.filter((p) => p.type === 'now' && postRemaining(p.type, p.ago) > 0).length,
     today: posts.filter((p) => p.type === 'today').length,
     long: posts.filter((p) => p.type === 'long').length,
-    culture: 2,
+    culture: 0,
     qa: qas.length,
   }), [posts, qas, spotReviews]);
 
@@ -336,18 +336,17 @@ export function DiscoverScreen() {
               <span>{tab === 'now' ? '按时效 · 现场可信度排序' : tab === 'today' ? '今日可去的路线、展览与餐厅' : '避坑、交通与拍摄点 · 可被 AI 引用'}</span>
               <span>{tab === 'now' ? '6 小时后自动折叠' : tab === 'today' ? '24 小时有效' : '30 天有效'}</span>
             </div>
-            {list.map((post) => <PostCard key={post.id} post={post} onVote={onVote(post)} />)}
+            {list.length ? list.map((post) => <PostCard key={post.id} post={post} onVote={onVote(post)} />) : (
+              <Empty
+                icon="compass"
+                title={tab === 'now' ? '此刻还没有现场内容' : tab === 'today' ? '今天还没有推荐' : '还没有人分享经验'}
+                text="点右下角发布，写下第一条真实内容"
+              />
+            )}
             {tab === 'now' && folded.length ? (
               <button className="recycle-row" style={{ width: 'calc(100% - 40px)' }} onClick={() => toast(`已折叠 ${folded.length} 条过期「此刻」`)}>
                 <Icon name="clock" size={14} /><span>已折叠 {folded.length} 条过期「此刻」</span><span className="r">查看 <Icon name="right" size={12} /></span>
               </button>
-            ) : null}
-            {tab === 'today' ? (
-              <div className="ai-cta">
-                <span><Icon name="sparkle" size={16} /></span>
-                <div><b>让 AI 按今天剩余时间排一条</b><p>结合天气、营业时间与现场信息</p></div>
-                <button className="btn sm primary" onClick={() => openAi('按今天剩下的时间，排一条半日路线')}>安排</button>
-              </div>
             ) : null}
           </>
         ) : null}
@@ -399,24 +398,11 @@ export function DiscoverScreen() {
         ) : null}
 
         {tab === 'culture' ? (
-          <>
-            <div className="culture">
-              <div className="k">文化卡 · 官方</div>
-              <h3>西湖十景，为什么是这十个</h3>
-              <p>南宋画师从 800 年前的湖山取景，选出十个最佳观看位置。今天你仍然可以按图索骥，只是季节和人流改变了「最佳」。</p>
-              <div className="src"><Icon name="shield" size={9} />杭州市文旅局 · 认证创作者 · 2026.09 修订</div>
-            </div>
-            {[
-              ['西湖绸伞：一把伞的 18 道工序', '城市文化 · 非遗', '从选竹到穿线，杭州人把雨天做成了手艺。'],
-              ['「小伢儿」和杭州话的 7 个声调', '方言 · 街区', '在老城巷子里，听懂一句本地话。'],
-            ].map(([title, kicker, desc]) => (
-              <div className="culture-row" key={title}>
-                <div className="ph"><img src="photos/pic14.jpg" alt="" /></div>
-                <div><span>{kicker}</span><b>{title}</b><p>{desc}</p></div>
-              </div>
-            ))}
-            <div className="footer-note">文化卡由官方或认证创作者发布，字段结构化，可被 AI 引用</div>
-          </>
+          <Empty
+            icon="bookmark"
+            title="还没有文化内容"
+            text="文化卡会由官方或认证创作者发布，当前没有预置内容"
+          />
         ) : null}
 
         {tab === 'qa' ? (
@@ -425,7 +411,7 @@ export function DiscoverScreen() {
               <span>向本地用户或 AI 提问 · 7 天有效</span>
               <button className="btn sm ghost" onClick={() => toast('提问已发布 · 7 天后自动折叠')}><Icon name="message" size={13} />提问</button>
             </div>
-            {qas.map((q) => (
+            {qas.length ? qas.map((q) => (
               <div className="qa" key={q.id}>
                 <div className="q">{q.q}</div>
                 {q.answers.map((a) => (
@@ -438,7 +424,9 @@ export function DiscoverScreen() {
                   </div>
                 ))}
               </div>
-            ))}
+            )) : (
+              <Empty icon="message" title="还没有问题" text="向本地用户或 AI 提第一个问题" />
+            )}
           </>
         ) : null}
       </div>

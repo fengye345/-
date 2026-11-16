@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 import { Icon } from '../components/Icon';
 import { Sheet } from '../components/Sheet';
-import { Avatar } from '../components/ui';
+import { Avatar, Empty } from '../components/ui';
 import { useToast } from '../components/Toast';
 
 export function TeamScreen() {
@@ -25,6 +25,22 @@ export function TeamScreen() {
     send(value);
     setText('');
   };
+
+  if (!team.id) {
+    return (
+      <div className="screen">
+        <div className="apphead"><div><h1>队伍</h1><div className="sub">还没有加入任何队伍</div></div></div>
+        <Empty
+          icon="users"
+          title="还没有队伍"
+          text="只有双方互相喜欢并确认后，才会创建队伍和聊天"
+        />
+        <div style={{ padding: '0 20px' }}>
+          <button className="btn ghost block" onClick={() => navigate('/share')}>去共享大厅看看</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="screen team-screen" style={{ paddingBottom: 0 }}>

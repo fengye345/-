@@ -56,14 +56,14 @@ export function RecommendScreen() {
           <button className="iconbtn dark" onClick={backToMap} aria-label="返回地图">
             <Icon name="left" size={18} />
           </button>
-          <button className="iconbtn dark" onClick={() => toast('已生成城市推荐卡')} aria-label="分享">
+          <button className="iconbtn dark" onClick={() => toast('分享图导出尚未接入')} aria-label="分享">
             <Icon name="share" size={17} />
           </button>
         </div>
         <div className="rec-hero-text">
           <div className="k">SYSTEM GUIDE · {province || '城市推荐'}</div>
           <h1>{cityName}</h1>
-          <p>{spots.length} 个系统推荐 · {reviews.length} 条评论 · 基于公开资料与旅行者反馈</p>
+          <p>{spots.length} 个系统推荐 · {reviews.length} 条评论 · 基于公开资料与系统策展</p>
         </div>
       </div>
 
@@ -72,7 +72,7 @@ export function RecommendScreen() {
           <span className="dot" />
           <div>
             <b>{lit ? '已点亮这座城市' : '这座城市还没有点亮'}</b>
-            <span>{lit ? '系统推荐会结合你的到访记录排序' : '推荐基于公开资料；点亮后可记录到访与回忆'}</span>
+            <span>{lit ? '系统推荐不受到访记录影响' : '推荐基于公开资料；点亮后可记录到访与回忆'}</span>
           </div>
           {lit ? (
             <button
@@ -103,7 +103,7 @@ export function RecommendScreen() {
 
         <div className="section-title">
           <h2>系统推荐</h2>
-          <span className="more">按到达时间与口碑排序</span>
+          <span className="more">系统策展 · 无用户评论时按目录排序</span>
         </div>
 
         <div className="spot-list">
@@ -113,8 +113,6 @@ export function RecommendScreen() {
                 <img src={spot.image} alt={spot.name} />
                 <div className="spot-veil" />
                 <span className="spot-badge">系统推荐</span>
-                <span className="spot-rating"><Icon name="star" size={11} filled />{spot.rating.toFixed(1)}</span>
-                <span className="spot-reviews">{spot.reviewCount} 条评论</span>
               </div>
               <div className="spot-body">
                 <div className="spot-title">
@@ -151,11 +149,17 @@ export function RecommendScreen() {
           <div className="rec-review-head">
             <div>
               <h2>评论补充</h2>
-              <span>系统推荐之外，看看刚回来的人怎么说</span>
+              <span>{reviews.length ? '系统推荐之外，看看刚回来的人怎么说' : '还没有评论，去发现页写下第一条'}</span>
             </div>
             <button onClick={() => goDiscover('recommend')}>去发现<Icon name="right" size={12} /></button>
           </div>
-          {reviews.slice(0, 2).map((r) => (
+          {reviews.length === 0 ? (
+            <div className="rec-empty">
+              <Icon name="message" size={17} />
+              <b>还没有人留下评论</b>
+              <p>系统只展示推荐，不生成假评论。你可以去发现页发布真实体验。</p>
+            </div>
+          ) : reviews.slice(0, 2).map((r) => (
             <button
               className="rec-review-row"
               key={r.id}
@@ -174,7 +178,7 @@ export function RecommendScreen() {
         </div>
 
         <p className="rec-note">
-          系统推荐综合公开资料、到访时间与评论生成；营业时间、票价可能调整，出发前请再确认。
+          系统推荐综合公开资料整理；评论只在你或他人真实发布后出现。营业时间、票价可能调整，出发前请再确认。
         </p>
       </div>
 

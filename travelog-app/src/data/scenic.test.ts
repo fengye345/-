@@ -16,11 +16,9 @@ describe('scenic recommendations', () => {
     expect(spots.every((s) => s.adcode === '440600')).toBe(true);
   });
 
-  it('produces both recommend and avoid reviews', () => {
+  it('starts with no preloaded user reviews', () => {
     const reviews = reviewsForCity('330100', '杭州', '浙江省');
-    expect(reviews.some((r) => r.kind === 'RECOMMEND')).toBe(true);
-    expect(reviews.some((r) => r.kind === 'AVOID')).toBe(true);
-    expect(reviews.every((r) => r.city === '杭州')).toBe(true);
+    expect(reviews).toHaveLength(0);
   });
 
   it('maps display city names to adcodes', () => {

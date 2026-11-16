@@ -74,9 +74,9 @@ export function MemoryDetailScreen() {
   };
 
   return (
-    <div className="screen" style={{ paddingBottom: 0 }}>
+    <div className="screen memory-detail-screen" style={{ paddingBottom: 0 }}>
       <div className="mem-cover">
-        <img src={box.cover} alt="" />
+        {box.cover ? <img src={box.cover} alt="" /> : <div className="mem-cover-empty"><Icon name="image" size={28} /></div>}
         <div className="scrim" />
         <div className="bar">
           <button className="iconbtn dark" onClick={() => navigate('/memory')} aria-label="返回"><Icon name="left" size={18} /></button>
@@ -173,7 +173,7 @@ export function MemoryDetailScreen() {
                 onClick={() => { updateBox(box.id, { template: t.id }); toast(`已切换为「${t.name}」模板`); }}
               >
                 <div className="mini">
-                  <div className="m-img" style={{ backgroundImage: `url(${box.cover})` }} />
+                  <div className="m-img" style={box.cover ? { backgroundImage: `url(${box.cover})` } : undefined} />
                   <div className="m-veil" />
                   <div className="m-t" style={t.id === 'film' ? { fontFamily: 'var(--mono)', fontSize: 7 } : undefined}>{box.title.split(' · ')[0]}</div>
                   <div className="m-line" style={{ bottom: 20 }} />
@@ -190,13 +190,13 @@ export function MemoryDetailScreen() {
       <div className="mem-toolbar">
         <button className="mem-tool" onClick={() => setTab('template')}><Icon name="grid" size={19} />模板</button>
         <button className="mem-tool" onClick={() => toast('音乐库：轻音乐 / 城市民谣 / 环境声')}><Icon name="music" size={19} />音乐</button>
-        <button className="mem-tool" onClick={() => toast('正在导出视频 · 预计 12 秒')}><Icon name="export" size={19} />导出</button>
+        <button className="mem-tool" onClick={() => toast('导出功能尚未接入')}><Icon name="export" size={19} />导出</button>
         <button className="mem-tool primary" onClick={() => setShareOpen(true)}><Icon name="share" size={19} />分享</button>
       </div>
 
       <Sheet open={shareOpen} onClose={() => setShareOpen(false)} title="分享回忆盒" sub="链接可设置有效期与水印">
         <div className="share-preview">
-          <img src={box.cover} alt="" />
+          {box.cover ? <img src={box.cover} alt="" /> : <div className="share-cover-empty"><Icon name="image" size={18} /></div>}
           <div><b>{box.title}</b><span>{box.count} 张照片 · {box.range}</span></div>
           <Badge tone="live" dot>仅链接可见</Badge>
         </div>

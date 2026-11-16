@@ -2,6 +2,7 @@ package cn.travelog.service;
 
 import cn.travelog.common.ApiException;
 import cn.travelog.store.DataStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -17,8 +18,9 @@ public class ContentService {
     private final List<Map<String, Object>> questions = new CopyOnWriteArrayList<>();
     private final List<Map<String, Object>> cultureCards = new ArrayList<>();
 
-    public ContentService(DataStore store) {
+    public ContentService(DataStore store, @Value("${travelog.seed-demo:false}") boolean seedDemo) {
         this.store = store;
+        if (!seedDemo) return;
         cultureCards.add(culture("cul_1", "西湖十景，为什么是这十个", "城市文化 · 官方",
                 "南宋画师从 800 年前的湖山取景，选出十个最佳观看位置。今天你仍然可以按图索骥，只是季节和人流改变了「最佳」。",
                 "杭州市文旅局 · 认证创作者 · 2026.09 修订"));

@@ -415,7 +415,7 @@ function makeSpot(adcode: string, city: string, province: string, row: Row, inde
     id: `${adcode}-${index + 1}`,
     adcode, city, province, name, category,
     image: img(image),
-    rating, reviewCount, duration, ticket, hours, distance,
+    rating: 0, reviewCount: 0, duration, ticket, hours, distance,
     tags: [...tags], reason, tip,
   };
 }
@@ -444,108 +444,16 @@ export function spotsForCity(adcode: string, city?: string, province?: string): 
   return rows.map((row, i) => makeSpot(adcode, name, prov, row, i));
 }
 
-const AUTHORS: Array<[string, string, string]> = [
-  ['林小满', '满', 'a1'], ['陈默', '默', 'a2'], ['Kay', 'K', 'a3'],
-  ['阿泽', '泽', 'a4'], ['小北', '北', 'a5'], ['Momo', 'M', 'a6'],
-  ['老周', '周', 'a1'], ['Yuki', 'Y', 'a3'],
-];
-
-const SPECIAL_REVIEWS: Record<string, Array<[SpotKind, string, string, string[], number, string]>> = {
-  西湖: [
-    ['RECOMMEND', '陈默', '17:30 从长桥往雷峰塔走，风把桂花吹过来，湖边比白天安静很多。断桥今天人已经散了。', ['日落', '免费'], 186, '12 分钟前'],
-    ['RECOMMEND', '林小满', '别只走断桥到白堤，北山街的梧桐和石函路更适合拍照，全程免费。', ['步行', '拍照'], 94, '1 小时前'],
-    ['AVOID', '老周', '周末 10 点到 16 点人贴人，音乐喷泉散场后打车也很难。建议清晨或晚上 8 点后。', ['人流', '周末'], 61, '3 小时前'],
-  ],
-  灵隐寺: [
-    ['RECOMMEND', 'Momo', '飞来峰石刻和寺庙一起看，早上 8 点前到，香客和游客都少。', ['早去', '寺庙'], 72, '2 小时前'],
-    ['AVOID', '林小满', '山门口卖的香别买，寺里可以免费领三支；17:00 停止入场，别下午才去。', ['避坑', '门票'], 88, '昨天'],
-  ],
-  九溪烟树: [
-    ['RECOMMEND', '阿泽', '九溪的水量这周刚好，林海亭走到理安寺 40 分钟，石板路湿但很舒服。', ['徒步', '溪水'], 56, '4 小时前'],
-    ['AVOID', '小北', '雨后石板路很滑，穿普通运动鞋会打滑；夏天蚊子多，驱蚊水必带。', ['路滑', '蚊虫'], 34, '昨天'],
-  ],
-  河坊街: [
-    ['RECOMMEND', 'Yuki', '主街随便看看就行，拐进大井巷和南宋御街，小店和咖啡馆更有意思。', ['老街', '咖啡'], 48, '5 小时前'],
-    ['AVOID', '陈默', '主街网红小吃又贵又一般，同一份葱包桧巷子里便宜一半。', ['溢价', '小吃'], 67, '昨天'],
-  ],
-  鼓浪屿: [
-    ['RECOMMEND', 'Kay', '避开龙头路，往笔山路和内厝澳走，老别墅和三角梅安静很多。', ['小众', '老别墅'], 91, '3 小时前'],
-    ['AVOID', '阿泽', '船票要实名预约，码头外说能带你上岛的“快速通道”都是加价黄牛。', ['船票', '黄牛'], 120, '昨天'],
-  ],
-  莫高窟: [
-    ['RECOMMEND', '老周', 'A 类票的数字影院和 8 个洞窟很值，讲解员水平决定体验，别迟到。', ['壁画', '讲解'], 140, '6 小时前'],
-    ['AVOID', 'Momo', '洞窟内禁止拍照，别抱侥幸；旺季票要提前一周抢，当天基本没有。', ['预约', '规则'], 76, '昨天'],
-  ],
-};
-
-const REC_TEXTS: Array<(s: ScenicSpot) => string> = [
-  (s) => `${s.name}值得来。${s.reason}`,
-  (s) => `按推荐的时间来，体验比预期好。${s.tip}`,
-  (s) => `适合${s.tags.slice(0, 2).join('、')}，慢慢走比打卡舒服。`,
-];
-
-const AVOID_TEXTS: Array<(s: ScenicSpot) => string> = [
-  (s) => `${s.name}名气大于体验，节假日排队太久。${s.tip}`,
-  (s) => `别在正午来，晒且人多；如果只安排半天，建议换一个点。`,
-  (s) => `门票、交通和园内消费加起来不便宜，性价比一般，先看评价再决定。`,
-];
-
-const KIND_AGO = ['12 分钟前', '1 小时前', '3 小时前', '昨天', '2 天前'];
-
-const reviewCache = new Map<string, SpotReview[]>();
-
-export function reviewsForCity(adcode: string, city?: string, province?: string): SpotReview[] {
-  const key = `${adcode}:${city ?? ''}`;
-  const hit = reviewCache.get(key);
-  if (hit) return hit;
-
-  const spots = spotsForCity(adcode, city, province);
-  const list: SpotReview[] = [];
-  spots.forEach((spot, si) => {
-    const special = SPECIAL_REVIEWS[spot.name];
-    if (special) {
-      special.forEach((row, i) => {
-        const [kind, author, text, tags, likes, ago] = row;
-        list.push(buildReview(spot, kind, author, text, [...tags], likes, ago, si + i));
-      });
-      return;
-    }
-    for (let i = 0; i < 3; i++) {
-      const kind: SpotKind = i === 2 ? 'AVOID' : 'RECOMMEND';
-      const author = AUTHORS[(si + i) % AUTHORS.length];
-      const text = kind === 'RECOMMEND' ? REC_TEXTS[i % REC_TEXTS.length](spot) : AVOID_TEXTS[i % AVOID_TEXTS.length](spot);
-      list.push(buildReview(spot, kind, author[0], text,
-        spot.tags.slice(0, 2), 18 + ((si * 13 + i * 7) % 90), KIND_AGO[(si + i) % KIND_AGO.length], si * 3 + i));
-    }
-  });
-  reviewCache.set(key, list);
-  return list;
+/**
+ * Reviews are user-generated data. A brand-new account has none; the page
+ * renders its empty state until real reviews are created.
+ */
+export function reviewsForCity(_adcode: string, _city?: string, _province?: string): SpotReview[] {
+  return [];
 }
 
-function buildReview(spot: ScenicSpot, kind: SpotKind, author: string, text: string,
-                     tags: string[], likes: number, ago: string, n: number): SpotReview {
-  const meta = AUTHORS.find((a) => a[0] === author) ?? AUTHORS[n % AUTHORS.length];
-  return {
-    id: `${spot.id}-r${n}`,
-    spotId: spot.id,
-    spotName: spot.name,
-    adcode: spot.adcode,
-    city: spot.city,
-    province: spot.province,
-    kind,
-    author,
-    initial: meta[1],
-    hue: meta[2],
-    text,
-    tags,
-    likes,
-    ago,
-  };
-}
-
-export function reviewsForSpot(spot: ScenicSpot): SpotReview[] {
-  return reviewsForCity(spot.adcode, spot.city, spot.province)
-    .filter((r) => r.spotId === spot.id);
+export function reviewsForSpot(_spot: ScenicSpot): SpotReview[] {
+  return [];
 }
 
 export function curatedCities(): Array<{ adcode: string; city: string; province: string }> {

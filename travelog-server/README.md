@@ -18,7 +18,15 @@ java -jar target/travelog-server-1.0.0.jar
 
 服务地址：`http://localhost:8080`，API 前缀：`http://localhost:8080/api/v1`。
 
-演示账号（验证码固定，仅本地）：
+**默认不加载演示数据。** 新手机号登录会创建一个空白账号，城市、回忆盒、发布、消息、
+共享大厅和队伍全部为空。只有需要接口契约演示时才显式开启种子：
+
+```bash
+java -jar target/travelog-server-1.0.0.jar --travelog.seed-demo=true
+# 或 mvn spring-boot:run -Dspring-boot.run.arguments=--travelog.seed-demo=true
+```
+
+开启种子后的演示账号（验证码固定，仅本地）：
 
 ```json
 {"phone":"13800000000","code":"123456"}

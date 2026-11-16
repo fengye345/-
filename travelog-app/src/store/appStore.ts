@@ -9,7 +9,6 @@ export type Store = AppData & {
   beginRegistration: (phone: string, provider?: 'PHONE' | 'WECHAT' | 'APPLE' | 'DEMO') => void;
   completeRegistration: (patch: Partial<AppData['user']>) => void;
   updateAuth: (patch: Partial<NonNullable<AppData['auth']>>) => void;
-  enterDemo: () => void;
   logout: () => void;
   lightUp: (city: string, province?: string) => CityRecord;
   finishOnboarding: () => void;
@@ -98,37 +97,13 @@ export const useAppStore = create<Store>()(
                 registeredAt: Date.now(),
                 profileComplete: true,
               },
+            currentCity: (patch.city ?? s.user.city) || '杭州',
           };
         });
       },
 
       updateAuth(patch) {
         set((s) => (s.auth ? { auth: { ...s.auth, ...patch } } : {}));
-      },
-
-      enterDemo() {
-        const state = get();
-        if (!state.cities['杭州']?.lit) {
-          state.lightUp('杭州');
-        }
-        set((s) => ({
-          auth: {
-            phone: s.user.phone || '138****8821',
-            provider: 'DEMO',
-            registeredAt: Date.now(),
-            profileComplete: true,
-          },
-          onboarded: true,
-          currentCity: '杭州',
-          user: {
-            ...s.user,
-            name: s.user.name || '阿澈',
-            initial: s.user.initial || '澈',
-            verified: true,
-            adult: true,
-            phone: s.user.phone || '138****8821',
-          },
-        }));
       },
 
       logout() {
@@ -141,10 +116,17 @@ export const useAppStore = create<Store>()(
           set({ currentCity: city, onboarded: true });
           return existing;
         }
-        const meta = CITY_META[city] ?? {
-          province: province ?? '', first: new Date().toISOString().slice(0, 10), visits: 1, days: 1,
+        const meta = CITY_META[city];
+        const record: CityRecord = {
+          province: province ?? meta?.province ?? '',
+          first: new Date().toISOString().slice(0, 10),
+          visits: 1,
+          days: 1,
+          deep: false,
+          coord: meta?.coord,
+          lit: true,
+          last: '今天',
         };
-        const record: CityRecord = { ...meta, lit: true, last: '今天' };
         set((s) => ({
           cities: { ...s.cities, [city]: record },
           currentCity: city,
@@ -161,10 +143,10 @@ export const useAppStore = create<Store>()(
         const base = CITY_META[city];
         const record: CityRecord = {
           province: province ?? base?.province ?? '',
-          first: base?.first ?? '今天',
-          visits: base?.visits ?? 1,
-          days: base?.days ?? 1,
-          deep: base?.deep,
+          first: new Date().toISOString().slice(0, 10),
+          visits: 1,
+          days: 1,
+          deep: false,
           coord: base?.coord,
           adcode,
           lit: true,
@@ -227,11 +209,11 @@ export const useAppStore = create<Store>()(
           author: get().user.name,
           initial: get().user.initial,
           hue: get().user.hue,
-          verified: true,
+          verified: get().user.verified,
           ago: 0,
           place: input.place,
-          dist: input.onSite ? '320m' : '—',
-          area: '西湖景区',
+          dist: input.onSite ? '同城' : '—',
+          area: input.place,
           text: input.text.replace(/\n/g, '<br>'),
           img: input.img,
           valid: 0,
@@ -269,21 +251,20 @@ export const useAppStore = create<Store>()(
       },
 
       createBox(): MemoryBox {
+        const city = get().currentCity || '杭州';
         const box: MemoryBox = {
           id: `box-${Date.now()}`,
-          title: '杭州 · 新的回忆',
-          kicker: '自动识别 · 刚刚',
-          city: '杭州',
-          range: '2026.10.19 — 进行中',
-          cover: PHOTO(15),
-          photos: [PHOTO(15), PHOTO(14), PHOTO(5), PHOTO(8)],
-          count: 4,
+          title: `${city} · 新的回忆`,
+          kicker: '刚刚创建',
+          city,
+          range: '还没有添加照片',
+          cover: '',
+          photos: [],
+          count: 0,
           status: 'draft',
           template: 'magazine',
           privacy: 'private',
-          days: [
-            { label: 'Day 1', date: '10.19 周日', note: '自动识别', photos: [PHOTO(15), PHOTO(14), PHOTO(5), PHOTO(8)] },
-          ],
+          days: [],
         };
         set((s) => ({
           boxes: [box, ...s.boxes],
@@ -377,7 +358,7 @@ export const useAppStore = create<Store>()(
       },
     }),
     {
-      name: 'travelog.app.v1',
+      name: 'travelog.app.v2',
       version: 1,
     },
   ),

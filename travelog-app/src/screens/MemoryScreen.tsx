@@ -29,7 +29,7 @@ export function MemoryScreen() {
       const box = await api.memory.create();
       setCreateOpen(false);
       navigate(`/memory/${box.id}`);
-      toast('回忆盒已生成 · 默认仅本人可见');
+      toast('空白回忆盒已创建 · 去添加照片吧');
     } finally {
       setCreating(false);
     }
@@ -40,7 +40,7 @@ export function MemoryScreen() {
       <div className="apphead">
         <div>
           <h1>回忆</h1>
-          <div className="sub">{boxes.length} 个盒子 · {totalPhotos} 张照片 · 自动成团</div>
+          <div className="sub">{boxes.length} 个盒子 · {totalPhotos} 张照片</div>
         </div>
         <div className="apphead-actions">
           <button className="iconbtn" onClick={() => toast('按城市、日期或文字查找回忆')} aria-label="搜索">
@@ -75,7 +75,7 @@ export function MemoryScreen() {
           {feature ? (
             <div className="mem-hero">
               <button className="mem-feature" onClick={() => navigate(`/memory/${feature.id}`)}>
-                <img src={feature.cover} alt={feature.title} />
+                {feature.cover ? <img src={feature.cover} alt={feature.title} /> : <div className="mem-cover-empty"><Icon name="image" size={26} /></div>}
                 <div className="veil" />
                 <div className="top">
                   <Badge tone="glass">{feature.status === 'draft' ? '草稿 · 自动保存' : '已完成'}</Badge>
@@ -90,7 +90,14 @@ export function MemoryScreen() {
               </button>
             </div>
           ) : (
-            <Empty title="还没有回忆盒" text="到达新城市后，系统会按时间和地点自动成团" />
+            <div className="empty" style={{ paddingTop: 26 }}>
+              <div className="ic"><Icon name="layers" size={24} /></div>
+              <b>还没有回忆盒</b>
+              <p>创建空白回忆盒，再把真实照片和文字放进去</p>
+              <button className="btn primary sm" style={{ marginTop: 12 }} onClick={() => setCreateOpen(true)}>
+                <Icon name="plus" size={14} />创建第一个回忆盒
+              </button>
+            </div>
           )}
 
           {rest.length ? (
@@ -100,7 +107,7 @@ export function MemoryScreen() {
                 {rest.map((b) => (
                   <button className="mem-card" key={b.id} onClick={() => navigate(`/memory/${b.id}`)}>
                     <div className="ph">
-                      <img src={b.cover} alt="" />
+                      {b.cover ? <img src={b.cover} alt="" /> : <div className="mem-cover-empty small"><Icon name="image" size={18} /></div>}
                       <div className="veil" />
                       <div className="tag">
                         {b.status === 'draft' ? <Badge tone="draft">草稿</Badge> : (
@@ -126,34 +133,26 @@ export function MemoryScreen() {
       <Sheet
         open={createOpen}
         onClose={() => setCreateOpen(false)}
-        title="生成新的回忆盒"
-        sub="自动识别 · 无需手动建相册"
+        title="创建回忆盒"
+        sub="从空白开始，不预置任何照片"
         footer={(
           <button className="btn primary block" style={{ marginTop: 14 }} onClick={create} disabled={creating}>
-            <Icon name="sparkle" size={16} />{creating ? '正在生成…' : '开始生成'}
+            <Icon name="plus" size={16} />{creating ? '正在创建…' : '创建空白回忆盒'}
           </button>
         )}
       >
-        <div className="create-steps">
-          {([
-            ['image', '读取相册授权范围', '仅读取你允许的照片', 'done'],
-            ['route', '按时间与地点聚类', '识别为一次旅行（离开常住城市 50km）', 'done'],
-            ['sparkle', '去重与智能筛选', '过滤截图、模糊和重复照片', 'running'],
-          ] as [IconName, string, string, string][]).map(([icon, title, desc, state]) => (
-            <div className={`cstep${state === 'running' ? ' running' : ''}`} key={title}>
-              <div className="ico"><Icon name={icon} size={16} /></div>
-              <div className="t"><b>{title}</b><span>{desc}</span></div>
-              <div className="st">{state === 'done' ? <><Icon name="check" size={12} />完成</> : <><span className="spin" />进行中</>}</div>
-            </div>
-          ))}
+        <div className="empty" style={{ padding: '18px 8px 10px' }}>
+          <div className="ic"><Icon name="layers" size={22} /></div>
+          <b>先有一个盒子</b>
+          <p>创建后进入素材页，从相册添加照片或视频；也可以先写下文字。</p>
         </div>
         <div className="preview-mini">
-          <div className="k">识别结果</div>
-          <div className="line"><span>旅行</span><b>杭州 · 2 天 1 夜</b></div>
-          <div className="line"><span>可用素材</span><b>18 张照片 · 2 段视频</b></div>
-          <div className="line"><span>已过滤</span><b>6 张截图 / 3 张模糊</b></div>
+          <div className="k">创建后</div>
+          <div className="line"><span>照片</span><b>0 张 · 由你添加</b></div>
+          <div className="line"><span>可见范围</span><b>仅本人可见</b></div>
+          <div className="line"><span>自动保存</span><b>本地草稿</b></div>
         </div>
-        <p className="hint" style={{ margin: '12px 2px 0' }}>生成后可随时增删素材、调整顺序、更换模板。草稿会自动保存到云端。</p>
+        <p className="hint" style={{ margin: '12px 2px 0' }}>不会读取相册，也不会生成占位照片；所有素材都需要你主动添加。</p>
       </Sheet>
     </div>
   );

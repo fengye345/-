@@ -2,6 +2,7 @@
 # experiments and one-off generation helpers stay out of the repository.
 /*
 !/.gitignore
+!/AGENTS.md
 !/README.md
 !/travel-app/
 !/travel-docs/

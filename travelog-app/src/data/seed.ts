@@ -1,14 +1,18 @@
-import type { AppData, CityIndexItem, CityMeta, MemoryBox } from '../types';
+import type { AppData, CityIndexItem, CityMeta } from '../types';
 
 export const PHOTO = (i: number) => `photos/pic${String(i).padStart(2, '0')}.jpg`;
 
+/**
+ * Static city catalogue only. It is not user history: visits/days are 0 until
+ * the user actually lights a city.
+ */
 export const CITY_META: Record<string, CityMeta> = {
-  杭州: { province: '浙江省', first: '2023-04-06', visits: 4, days: 11, deep: true, hue: 158, coord: [120.155, 30.274] },
-  上海: { province: '上海市', first: '2024-02-11', visits: 2, days: 4, hue: 205, coord: [121.473, 31.23] },
-  成都: { province: '四川省', first: '2025-12-28', visits: 1, days: 3, hue: 24, coord: [104.066, 30.572] },
-  大理: { province: '云南省', first: '2024-08-02', visits: 2, days: 6, hue: 190, coord: [100.267, 25.606] },
-  厦门: { province: '福建省', first: '2026-03-21', visits: 1, days: 3, hue: 174, coord: [118.089, 24.479] },
-  北京: { province: '北京市', first: '2024-02-11', visits: 1, days: 2, hue: 0, coord: [116.407, 39.904] },
+  杭州: { province: '浙江省', first: '', visits: 0, days: 0, deep: false, hue: 158, coord: [120.155, 30.274] },
+  上海: { province: '上海市', first: '', visits: 0, days: 0, deep: false, hue: 205, coord: [121.473, 31.23] },
+  成都: { province: '四川省', first: '', visits: 0, days: 0, deep: false, hue: 24, coord: [104.066, 30.572] },
+  大理: { province: '云南省', first: '', visits: 0, days: 0, deep: false, hue: 190, coord: [100.267, 25.606] },
+  厦门: { province: '福建省', first: '', visits: 0, days: 0, deep: false, hue: 174, coord: [118.089, 24.479] },
+  北京: { province: '北京市', first: '', visits: 0, days: 0, deep: false, hue: 0, coord: [116.407, 39.904] },
 };
 
 /** 64 cities for name / pinyin / province search. */
@@ -49,255 +53,71 @@ export const CITY_INDEX: CityIndexItem[] = (
   ] as const
 ).map(([n, p, py, hot]) => ({ n, p, py, hot: !!hot }));
 
-const boxes: MemoryBox[] = [
-  {
-    id: 'box-hz',
-    title: '杭州 · 秋日漫游',
-    kicker: '2026 · 第 4 次到访',
-    city: '杭州',
-    range: '2026.10.18 — 今天',
-    cover: PHOTO(4),
-    photos: [PHOTO(4), PHOTO(14), PHOTO(1), PHOTO(16), PHOTO(10), PHOTO(2), PHOTO(15), PHOTO(6), PHOTO(12)],
-    count: 18,
-    status: 'draft',
-    template: 'magazine',
-    privacy: 'private',
-    days: [
-      { label: 'Day 1', date: '10.18 周六', note: '西湖 · 河坊街', photos: [PHOTO(4), PHOTO(14), PHOTO(1), PHOTO(16), PHOTO(10), PHOTO(2)] },
-      { label: 'Day 2', date: '10.19 周日', note: '灵隐 · 龙井', photos: [PHOTO(15), PHOTO(6), PHOTO(12)] },
-      { label: 'Day 3', date: '10.20 周一', note: '待记录', photos: [] },
-    ],
-  },
-  {
-    id: 'box-dali',
-    title: '大理 · 风花雪月',
-    kicker: '2026 · 第 2 次到访',
-    city: '大理',
-    range: '2026.05.02 — 05.06',
-    cover: PHOTO(2),
-    photos: [PHOTO(2), PHOTO(5), PHOTO(8), PHOTO(11)],
-    count: 42,
-    status: 'done',
-    template: 'film',
-    privacy: 'private',
-    views: 128,
-  },
-  {
-    id: 'box-xm',
-    title: '厦门 · 海边三日',
-    kicker: '第一次看海',
-    city: '厦门',
-    range: '2026.03.21 — 03.23',
-    cover: PHOTO(7),
-    photos: [PHOTO(7), PHOTO(8), PHOTO(5), PHOTO(0)],
-    count: 31,
-    status: 'done',
-    template: 'minimal',
-    privacy: 'private',
-    views: 76,
-  },
-  {
-    id: 'box-cd',
-    title: '成都 · 火锅与巷子',
-    kicker: '2025 年末',
-    city: '成都',
-    range: '2025.12.28 — 12.30',
-    cover: PHOTO(16),
-    photos: [PHOTO(16), PHOTO(14), PHOTO(4), PHOTO(17)],
-    count: 26,
-    status: 'done',
-    template: 'magazine',
-    privacy: 'private',
-    views: 54,
-  },
-];
-
+/**
+ * A fresh account starts with no history, check-ins, favourites, memories,
+ * posts, notifications, hall users or teams. Everything here is empty by
+ * design; pages must render their own empty states instead of demo rows.
+ */
 export const SEED: AppData = {
   version: 1,
   onboarded: false,
   user: {
-    name: '阿澈',
-    initial: '澈',
+    name: '',
+    initial: '',
     hue: 'a3',
-    age: 26,
-    city: '杭州',
-    bio: '拍照、徒步、找本地小店',
-    tags: ['摄影', '徒步', '咖啡'],
-    verified: true,
-    adult: true,
-    joined: '2023.04',
-    phone: '138****8821',
+    age: 0,
+    city: '',
+    bio: '',
+    tags: [],
+    verified: false,
+    adult: false,
+    joined: '',
+    phone: '',
   },
   settings: {
     autoLight: true,
     mapVisible: true,
     shareVisible: true,
     personalized: true,
-    albumSync: true,
+    albumSync: false,
     notify: true,
     dnd: false,
-    precise: true,
+    precise: false,
   },
   currentCity: '杭州',
-  pendingArrival: { city: '杭州', minutes: 32, points: 3, accuracy: 38 },
-  cities: {
-    上海: { ...CITY_META['上海'], lit: true, last: '2025.11.09' },
-    成都: { ...CITY_META['成都'], lit: true, last: '2025.12.30' },
-    大理: { ...CITY_META['大理'], lit: true, last: '2026.05.06' },
-    厦门: { ...CITY_META['厦门'], lit: true, last: '2026.03.23' },
-    北京: { ...CITY_META['北京'], lit: true, last: '2024.02.12' },
-  },
-  boxes,
-  hall: [
-    {
-      id: 'u1', name: '林小满', initial: '满', hue: 'a2', age: '24', dist: '1 公里内', verified: true,
-      tags: ['摄影', '咖啡', 'citywalk'],
-      why: '你们都在杭州，都喜欢人文摄影；她今天下午也打算去 <em>河坊街</em>，停留时间重叠 2 天。',
-      note: '想找：拍照搭子 · 慢节奏',
-    },
-    {
-      id: 'u2', name: 'Kay', initial: 'K', hue: 'a3', age: '28', dist: '3 公里内', verified: true,
-      tags: ['徒步', '日出', '露营'],
-      why: '你们都想早起去 <em>九溪</em>，出行节奏一致（紧凑 / 每日 1.5 万步），队伍还差 2 人。',
-      note: '想找：徒步搭子 · 早出发',
-    },
-    {
-      id: 'u3', name: '阿泽', initial: '泽', hue: 'a4', age: '26', dist: '同城', verified: false,
-      tags: ['美食', '夜游', 'livehouse'],
-      why: '你们都在杭州，都收藏了 <em>武林夜市</em>；他今晚想去听 livehouse，时间重叠 4 小时。',
-      note: '想找：吃饭搭子 · 不赶行程',
-    },
-    {
-      id: 'u4', name: 'Momo', initial: 'M', hue: 'a5', age: '23', dist: '1 公里内', verified: true,
-      tags: ['博物馆', '拍照', '书店'],
-      why: '你们都会在杭州停留到 10.21，都想去 <em>浙江省博物馆</em> 的新展，节奏都偏松弛。',
-      note: '想找：看展搭子 · 女生优先',
-    },
-    {
-      id: 'u5', name: '陈默', initial: '默', hue: 'a1', age: '31', dist: '3 公里内', verified: true,
-      tags: ['骑行', '咖啡', '纪录片'],
-      why: '你们都在杭州，都标记了 <em>龙井村</em> 的骑行路线；他有一辆多余的公路车。',
-      note: '想找：骑行搭子 · 半天',
-    },
-    {
-      id: 'u6', name: '小鹿', initial: '鹿', hue: 'a6', age: '25', dist: '同城', verified: true,
-      tags: ['咖啡', '书店', '手作'],
-      why: '你们都在杭州，都喜欢独立咖啡馆；她收藏的 <em>天目里</em> 也是你的想去。',
-      note: '想找：探店搭子 · 下午',
-    },
-  ],
+  pendingArrival: null,
+  cities: {},
+  boxes: [],
+  hall: [],
   team: {
-    id: 'team-1',
-    name: '周六九溪徒步',
-    city: '杭州',
+    id: '',
+    name: '',
+    city: '',
     cap: 8,
-    members: [
-      { name: 'Kay', initial: 'K', hue: 'a3', leader: true },
-      { name: '你', initial: '澈', hue: 'a3', me: true },
-      { name: '林小满', initial: '满', hue: 'a2' },
-      { name: '陈默', initial: '默', hue: 'a1' },
-    ],
-    meeting: { place: '九溪公交站 · C 口', time: '明天 08:30', note: '公共场所 · 距你 3.2km' },
-    messages: [
-      { sys: '队伍已创建 · 仅成员可见 · 解散后保留 30 天用于投诉处理', time: '昨天 21:04' },
-      { who: 'Kay', initial: 'K', hue: 'a3', text: '明早 8:30 九溪公交站集合，走九溪十八涧到龙井村，全程 6 公里。', time: '21:05' },
-      { who: '林小满', initial: '满', hue: 'a2', text: '收到。我带了相机，可以帮大家拍照 📷', time: '21:07' },
-      { who: '我', me: true, text: '我带两瓶水和驱蚊液，明早见。', time: '21:09' },
-    ],
-    joined: true,
+    members: [],
+    meeting: { place: '', time: '', note: '' },
+    messages: [],
+    joined: false,
   },
-  posts: [
-    {
-      id: 'p1', type: 'now', author: '陈默', initial: '默', hue: 'a1', verified: true,
-      ago: 12, place: '断桥残雪', dist: '320m', area: '西湖景区',
-      text: '断桥这会儿人已经散了，<b>现在过来刚刚好</b>。湖边风大，记得带件外套。',
-      img: PHOTO(1), valid: 12, invalid: 2, likes: 34, comments: 6, saved: false, liked: false, mine: false,
-    },
-    {
-      id: 'p2', type: 'now', author: 'Momo', initial: 'M', hue: 'a5', verified: true,
-      ago: 46, place: '灵隐寺', dist: '2.1km', area: '灵隐景区',
-      text: '灵隐寺今日 <b>17:00 停止入场</b>，飞来峰景区正常。排队约 25 分钟，建议从后山进。',
-      img: PHOTO(11), valid: 21, invalid: 0, likes: 58, comments: 9, saved: true, liked: true, mine: false,
-    },
-    {
-      id: 'p3', type: 'now', author: '阿泽', initial: '泽', hue: 'a4', verified: false,
-      ago: 88, place: '龙井村', dist: '6.4km', area: '西湖景区',
-      text: '龙井村口那家茶室今天有炒茶体验，<b>下午 3 点最后一锅</b>，人均 80。',
-      img: PHOTO(14), valid: 9, invalid: 1, likes: 17, comments: 3, saved: false, liked: false, mine: false,
-    },
-    {
-      id: 'p4', type: 'now', author: '你', initial: '澈', hue: 'a3', verified: true,
-      ago: 370, place: '湖滨银泰', dist: '—', area: '湖滨商圈',
-      text: '湖滨银泰地下停车场已满，建议停到 <b>解百</b>，步行 6 分钟。',
-      img: null, valid: 3, invalid: 4, likes: 2, comments: 0, saved: false, liked: false, mine: true,
-    },
-    {
-      id: 'p5', type: 'today', author: '旅迹编辑部', initial: '旅', hue: 'a1', verified: true,
-      ago: 120, place: '杭州', dist: '', area: '杭州',
-      text: '周六半日路线：<b>上午九溪 — 中午龙井 — 下午中国美院象山校区</b>。全程公交 + 步行，避开西湖主线人流。',
-      img: PHOTO(3), valid: 41, invalid: 0, likes: 96, comments: 14, saved: false, liked: false, mine: false,
-    },
-    {
-      id: 'p6', type: 'today', author: '小鹿', initial: '鹿', hue: 'a6', verified: true,
-      ago: 200, place: '天目里', dist: '4.2km', area: '西湖区',
-      text: '天目里这周末有 <b>独立书展</b>，免费，人不多。负一层咖啡馆的桂花拿铁值得一试。',
-      img: PHOTO(14), valid: 33, invalid: 1, likes: 61, comments: 8, saved: true, liked: false, mine: false,
-    },
-    {
-      id: 'p7', type: 'long', author: '旅迹编辑部', initial: '旅', hue: 'a1', verified: true,
-      ago: 2880, place: '杭州', dist: '', area: '杭州',
-      text: '西湖边 7 个不用排队的看日落位置：长桥公园、宝石山初阳台、西泠桥、茅家埠、浴鹄湾、九曜山、宝石流霞。附步行时间与公交。',
-      img: PHOTO(5), valid: 203, invalid: 2, likes: 312, comments: 47, saved: false, liked: false, mine: false,
-    },
-    {
-      id: 'p8', type: 'long', author: '陈默', initial: '默', hue: 'a1', verified: true,
-      ago: 7200, place: '九溪', dist: '', area: '西湖景区',
-      text: '九溪徒步避坑：周末 10 点后溪边人很多，建议 8 点前从九溪公交站进；穿防滑鞋，雨后石头很滑。',
-      img: null, valid: 88, invalid: 1, likes: 126, comments: 19, saved: true, liked: false, mine: false,
-    },
-  ],
-  qas: [
-    {
-      id: 'q1',
-      q: '现在去雷峰塔看日落，还来得及吗？',
-      answers: [
-        { by: '本地用户 · 陈默', initial: '默', hue: 'a1', verified: true, text: '来得及。今天日落 17:32，现在过去 20 分钟，塔上顶层还有位置，但电梯要排 15 分钟。', ago: 8 },
-        { by: 'AI 助手', initial: 'AI', hue: 'a1', ai: true, text: '景区今日开放至 17:30，16:40 停止售票。按当前路况预计 22 分钟到达，时间偏紧，建议直接去长桥公园看日落。', ago: 6 },
-      ],
-    },
-    {
-      id: 'q2',
-      q: '杭州下雨的话，有哪些室内去处？',
-      answers: [
-        { by: '本地用户 · Momo', initial: 'M', hue: 'a5', verified: true, text: '浙江省博物馆之江馆（免费，需预约）、中国丝绸博物馆、天目里书店。雨天西湖边反而好看。', ago: 60 },
-      ],
-    },
-  ],
+  posts: [],
+  qas: [],
   ai: {
     quota: 10,
-    used: 3,
+    used: 0,
     route: {
-      title: '周六下午 · 半日路线',
-      total: '4 小时 20 分 · 6.8 公里',
-      weather: { icon: 'sun', temp: '22°', desc: '多云转晴 · 东南风 2 级' },
-      stops: [
-        { time: '13:30', name: '中国美院象山校区', desc: '先看建筑与展览，人少。校园需提前 1 天预约，今天仍可现场登记。', walk: '地铁 4 号线 · 28 分钟', src: '校方公众号 · 10:20 更新' },
-        { time: '15:40', name: '凤凰山脚路', desc: '沿南宋皇城遗址散步，途中两家独立咖啡馆。', walk: '步行 1.2km · 16 分钟', src: '公共区域 · 陈默 12 分钟前' },
-        { time: '17:10', name: '长桥公园', desc: '看日落的最佳位置，比雷峰塔人少，无需门票。', walk: '公交 12 路 · 18 分钟', src: '杭州气象 · 今日 06:00' },
-      ],
-      unknown: '未能确认：象山校区今日是否开放夜场、长桥公园附近停车位。以上信息来自公开来源，出发前建议再次核对。',
+      title: '',
+      total: '',
+      weather: { icon: 'sun', temp: '', desc: '' },
+      stops: [],
+      unknown: '',
     },
   },
   share: { active: false, startedAt: null, expiresAt: null, likes: [], matchId: null },
   metrics: {
-    lit: false, boxCreated: true, shared: false, posted: true, matched: false,
-    aiUsed: true, deleted: false, manual: false, cheat: false, publicCopy: false, boxShared: false,
+    lit: false, boxCreated: false, shared: false, posted: false, matched: false,
+    aiUsed: false, deleted: false, manual: false, cheat: false, publicCopy: false, boxShared: false,
   },
-  notifications: [
-    { id: 'n1', type: 'team', title: 'Kay 在队伍里提到了你', body: '明早 8:30 九溪公交站，别迟到', ago: 6, unread: true },
-    { id: 'n2', type: 'like', title: '有人喜欢了你的名片', body: '同城 · 1 公里内 · 摄影标签重合', ago: 32, unread: true },
-    { id: 'n3', type: 'system', title: '你的「此刻」已通过审核', body: '湖滨银泰停车信息已展示 6 小时', ago: 120, unread: false },
-  ],
-  recycle: [{ id: 'r1', title: '苏州 · 一日', deleted: '9 天前', left: 21, cover: PHOTO(4) }],
+  notifications: [],
+  recycle: [],
   deletion: null,
 };
