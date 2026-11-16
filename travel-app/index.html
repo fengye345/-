@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>旅迹 · 旅游记录 App 高保真原型</title>
+<meta name="description" content="依据《旅游记录 App 产品需求文档 V1.0》实现的可运行高保真原型">
+<meta name="theme-color" content="#F5F2EA">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>
+window.addEventListener('error', function (e) {
+  try {
+    var p = document.createElement('pre');
+    p.id = 'JSERR';
+    p.style.cssText = 'position:fixed;left:0;top:0;z-index:9999;color:#b00;background:#fff;font:12px monospace;padding:8px;max-width:100%;white-space:pre-wrap';
+    p.textContent = 'JS ' + e.message + ' @ ' + (e.filename || '').split('/').pop() + ':' + e.lineno;
+    document.documentElement.appendChild(p);
+  } catch (err) {}
+});
+</script>
+</head>
+<body>
+<div class="stage">
+  <aside class="guide" id="guide"></aside>
+
+  <div class="device-wrap">
+    <div class="device">
+      <div class="phone" id="phone">
+        <div class="statusbar">
+          <span class="sb-time" id="sbTime">9:41</span>
+          <span class="sb-island"></span>
+          <span class="sb-icons">
+            <svg viewBox="0 0 18 12" width="17" height="11" aria-hidden="true"><path d="M1 9.5V10M5 7v3M9 4.5V10M13 2v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <svg viewBox="0 0 16 12" width="15" height="11" aria-hidden="true"><path d="M8 10.6 1.2 4.2a9.6 9.6 0 0 1 13.6 0L8 10.6Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="8" cy="8.6" r="1.2" fill="currentColor"/></svg>
+            <svg viewBox="0 0 26 12" width="25" height="11" aria-hidden="true"><rect x=".8" y=".8" width="21.4" height="10.4" rx="3" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".5"/><rect x="2.6" y="2.6" width="15" height="6.8" rx="1.8" fill="currentColor"/><path d="M23.6 4.2v3.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".5"/></svg>
+          </span>
+        </div>
+
+        <main class="viewport" id="view" aria-live="polite"></main>
+
+        <nav class="tabbar" id="tabbar" aria-label="主导航">
+          <a class="tab" data-tab="map" href="#/map">
+            <span class="tab-ico" data-icon="map"></span><span class="tab-txt">地图</span>
+          </a>
+          <a class="tab" data-tab="memory" href="#/memory">
+            <span class="tab-ico" data-icon="layers"></span><span class="tab-txt">回忆</span>
+          </a>
+          <a class="tab" data-tab="share" href="#/share">
+            <span class="tab-ico" data-icon="users"></span><span class="tab-txt">共享</span>
+          </a>
+          <a class="tab" data-tab="discover" href="#/discover">
+            <span class="tab-ico" data-icon="compass"></span><span class="tab-txt">发现</span>
+          </a>
+          <a class="tab" data-tab="me" href="#/me">
+            <span class="tab-ico" data-icon="user"></span><span class="tab-txt">我的</span>
+          </a>
+        </nav>
+
+        <div class="overlay-layer" id="overlays"></div>
+        <div class="toast-layer" id="toasts"></div>
+      </div>
+    </div>
+    <p class="device-hint">390 × 844 · iPhone 15 Pro · 可点击演示</p>
+  </div>
+</div>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/screens/map.js"></script>
+<script src="assets/js/screens/memory.js"></script>
+<script src="assets/js/screens/share.js"></script>
+<script src="assets/js/screens/discover.js"></script>
+<script src="assets/js/screens/me.js"></script>
+<script src="assets/js/screens/ai.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# Only the Travelog deliverables are versioned. Local caches, unrelated
+# experiments and one-off generation helpers stay out of the repository.
+/*
+!/.gitignore
+!/README.md
+!/travel-app/
+!/travel-docs/
+!/travelog-app/
+!/travelog-server/
+
+# dependencies and build output
+**/node_modules/
+**/dist/
+**/.vite/
+**/target/
+**/.gradle/
+**/build/
+travelog-server/maven-home/
+travelog-server/.m2repo/
+travelog-app/android/app/src/main/assets/
+travelog-app/android/capacitor-cordova-android-plugins/
+travelog-app/android/local.properties
+travelog-app/android/.idea/
+travelog-app/.idea/
+*.iml
+
+# logs / OS / editor
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

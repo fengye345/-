@@ -1,0 +1,101 @@
+### Travelog API · IntelliJ HTTP Client
+### 先执行登录，复制 accessToken 到 @token
+
+@base = http://localhost:8080/api/v1
+
+### 健康检查
+GET {{base}}/health
+
+### 发送验证码
+POST {{base}}/auth/sms/codes
+Content-Type: application/json
+
+{"phone":"13800000000"}
+
+### 登录
+POST {{base}}/auth/sessions/sms
+Content-Type: application/json
+
+{"phone":"13800000000","code":"123456"}
+
+> {%
+  client.global.set("token", response.body.data.accessToken);
+%}
+
+### 我的资料
+GET {{base}}/me
+Authorization: Bearer {{token}}
+
+### 城市搜索（拼音前缀）
+GET {{base}}/cities?q=da&size=10
+
+### 城市搜索（省份）
+GET {{base}}/cities?q=云南&size=10
+
+### 当前城市与定位进度
+GET {{base}}/cities/current
+Authorization: Bearer {{token}}
+
+### 回忆盒列表
+GET {{base}}/memory-boxes
+Authorization: Bearer {{token}}
+
+### 创建回忆盒
+POST {{base}}/memory-boxes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"title":"杭州 · 新的回忆","cityAdcode":"330100","template":"magazine"}
+
+### 发布「此刻」
+POST {{base}}/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"type":"NOW","city":"杭州","place":"断桥残雪","area":"西湖景区","content":"断桥这会儿人少了，风大记得带外套。","onSite":true,"imageUrl":"/photos/pic05.jpg"}
+
+### 公共内容列表
+GET {{base}}/posts?type=NOW&size=10
+
+### 开启共享
+POST {{base}}/share/sessions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"distanceBand":"ONE_KM"}
+
+### 同城大厅
+GET {{base}}/share/hall
+Authorization: Bearer {{token}}
+
+### 喜欢（u1 会互相喜欢 → 自动建队）
+POST {{base}}/share/likes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"toUserId":"u1"}
+
+### AI 会话
+POST {{base}}/ai/conversations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"city":"杭州"}
+
+### AI 提问
+POST {{base}}/ai/conversations/{{conversationId}}/messages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"text":"今天下午去哪"}
+
+### 公开分享链接（种子）
+GET {{base}}/share-links/dali7k9
+
+### 后台指标（演示账号是管理员）
+GET {{base}}/admin/metrics/overview
+Authorization: Bearer {{token}}
+
+### 后台审核列表
+GET {{base}}/admin/reviews?status=PENDING
+Authorization: Bearer {{token}}

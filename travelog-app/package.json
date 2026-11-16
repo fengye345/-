@@ -1,0 +1,38 @@
+{
+  "name": "travelog-app",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "旅迹 Travelog — 旅游记录 App 前端（React + TypeScript + Vite + Capacitor）",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "cap:sync": "cap sync android",
+    "cap:open": "cap open android",
+    "android:build": "cd android && gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.0",
+    "@capacitor/core": "^7.4.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.8.0",
+    "zustand": "^5.0.7"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

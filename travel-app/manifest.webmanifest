@@ -1,0 +1,17 @@
+{
+  "name": "旅迹 Travelog · 旅游记录",
+  "short_name": "旅迹",
+  "description": "以城市为单位的旅行记忆与在地连接工具 — 高保真原型",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F1E9",
+  "theme_color": "#0C342A",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

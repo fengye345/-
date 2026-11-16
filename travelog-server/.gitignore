@@ -1,0 +1,6 @@
+target/
+maven-home/
+*.log
+.DS_Store
+.idea/
+*.iml
