@@ -702,6 +702,27 @@ button.mem-feature{
 }
 .rec-empty b{ font-size: 11px; color: var(--ink); }
 .rec-empty p{ font-size: 9px; line-height: 1.55; margin: 0; max-width: 250px; }
+.rec-hero.no-cover{ background: linear-gradient(145deg, #DCE7DF, #F1E9D8); }
+.rec-empty-cover{ position: absolute; inset: 0; display: grid; place-items: center; color: rgba(20,37,31,.28); }
+.rec-no-spots{
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 7px; margin: 26px 20px; padding: 30px 22px;
+  background: #FBFAF5; border: 1px solid var(--line); border-radius: 20px;
+}
+.rec-no-spots .ic{
+  width: 54px; height: 54px; border-radius: 17px; display: grid; place-items: center;
+  background: var(--paper-2); color: var(--muted);
+}
+.rec-no-spots h2{ font-family: var(--serif); font-size: 21px; margin: 4px 0 0; }
+.rec-no-spots p{ font-size: 10.5px; line-height: 1.7; color: var(--muted); max-width: 260px; margin: 0 0 8px; }
+.rec-no-spots .btn{ height: 38px; padding: 0 14px; font-size: 10px; gap: 5px; }
+.spot-img-empty{
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: flex-start; justify-content: flex-end; padding: 16px;
+  background: linear-gradient(150deg, #DCE7DF, #EFE4CF);
+}
+.spot-img-empty b{ font-family: var(--serif); font-size: 24px; color: #1C3A30; letter-spacing: .06em; }
+.spot-img-empty span{ font-size: 9px; color: #61736A; margin-top: 2px; }
 .share-check .miss{ color: var(--clay); }
 .empty .btn.sm{ height: 34px; padding: 0 14px; font-size: 10px; gap: 5px; }
 

@@ -112,8 +112,10 @@ python scripts/generate-province-geo.py
   开放时间、距离、适合标签与避坑提示。
 - 推荐页每张卡都有「推荐 N / 避坑 N / 看评论」，可带 `spot` 参数跳到发现页对应口碑。
 - 发现页新增 **推荐 / 避坑** 两个 Tab，按城市与景区过滤；评论卡可回到景区推荐页。
-- 数据在 `src/data/scenic.ts`：20 个城市精选景区，其余城市用通用模板兜底。**评论默认空**，
-  新用户不会看到任何预置推荐/避坑评论；只有真实发布后才会出现。
+- 数据在 `src/data/scenic.ts`：只保留 20 个有可靠景区目录的城市；**没有收录的城市直接显示
+  「系统暂无推荐」**，不再生成“老城 / 博物馆 / 菜市场”等通用兜底景点。等真实用户推荐积累后
+  再纳入系统推荐。评论默认空，新用户不会看到任何预置推荐/避坑评论。
+- 系统推荐不配无关占位图，避免把国外海岸照片标成杭州；卡片用景点名与目录信息排版。
 - 直达：`/discover?tab=recommend&city=杭州&adcode=330100&spot=西湖`。
 
 ## 测试
@@ -124,7 +126,7 @@ pnpm test
 
 城市搜索单测覆盖：拼音前缀（`da` 只出大理/大连，不误命中青岛）、省份（云南 5 城）、
 精确名称优先、无结果、城市索引数量。省级匹配单测覆盖：全名/简称、自治州前缀、adcode、未点亮。
-景区单测覆盖：精选城市、通用城市兜底、**默认无预置评论**、城市 adcode 映射。
+景区单测覆盖：精选城市、**未收录城市无推荐**、**默认无预置评论**、城市 adcode 映射。
 注册单测覆盖：账号创建、资料完成、localStorage 持久化、退出登录。
 
 当前结果：**17 passed**。TypeScript `tsc --noEmit` 无错误，`vite build` 通过。
@@ -224,6 +226,7 @@ travelog-app/
 ![同城大厅空白状态](screenshots/36-share-hall-empty.png)
 ![AI 未接实时数据](screenshots/37-ai-empty.png)
 ![景区推荐无评论](screenshots/38-recommend-empty.png)
+![系统暂无推荐](screenshots/39-no-recommend.png)
 ![注册登录](screenshots/18-welcome.png)
 ![资料填写](screenshots/19-profile.png)
 ![选择点亮城市](screenshots/20-city.png)

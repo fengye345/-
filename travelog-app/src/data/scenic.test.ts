@@ -4,16 +4,14 @@ import { adcodeForCity, reviewsForCity, spotsForCity } from './scenic';
 describe('scenic recommendations', () => {
   it('returns curated Hangzhou spots first', () => {
     const spots = spotsForCity('330100', '杭州', '浙江省');
-    expect(spots).toHaveLength(6);
+    expect(spots).toHaveLength(5);
     expect(spots[0].name).toBe('西湖');
     expect(spots[0].city).toBe('杭州');
   });
 
-  it('falls back to four generated spots for an uncurated city', () => {
+  it('returns no system recommendation for an uncurated city', () => {
     const spots = spotsForCity('440600', '佛山', '广东省');
-    expect(spots).toHaveLength(4);
-    expect(spots.map((s) => s.name)).toContain('佛山老城');
-    expect(spots.every((s) => s.adcode === '440600')).toBe(true);
+    expect(spots).toHaveLength(0);
   });
 
   it('starts with no preloaded user reviews', () => {

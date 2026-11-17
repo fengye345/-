@@ -24,6 +24,7 @@ export function RecommendScreen() {
   const spots = useMemo(() => spotsForCity(adcode, name, province), [adcode, name, province]);
   const reviews = useMemo(() => reviewsForCity(adcode, name, province), [adcode, name, province]);
   const [filter, setFilter] = useState('全部');
+  const heroImage = spots[0]?.image ?? '';
   const cityName = spots[0]?.city ?? name;
   const categories = useMemo(() => ['全部', ...Array.from(new Set(spots.map((s) => s.category)))], [spots]);
   const filtered = filter === '全部' ? spots : spots.filter((s) => s.category === filter);
@@ -44,13 +45,13 @@ export function RecommendScreen() {
 
   const lightCity = () => {
     addManualCity(name, province, adcode);
-    toast(`${name} 已手动点亮 · 待审核`, 'pin');
+    toast(`${name} 已手动点亮`, 'pin');
   };
 
   return (
     <div className="screen rec-screen">
-      <div className="rec-hero">
-        <img src={spots[0]?.image ?? 'photos/pic04.jpg'} alt="" />
+      <div className={`rec-hero${heroImage ? '' : ' no-cover'}`}>
+        {heroImage ? <img src={heroImage} alt="" /> : <div className="rec-empty-cover"><Icon name="compass" size={30} /></div>}
         <div className="rec-scrim" />
         <div className="rec-nav">
           <button className="iconbtn dark" onClick={backToMap} aria-label="返回地图">
@@ -63,7 +64,7 @@ export function RecommendScreen() {
         <div className="rec-hero-text">
           <div className="k">SYSTEM GUIDE · {province || '城市推荐'}</div>
           <h1>{cityName}</h1>
-          <p>{spots.length} 个系统推荐 · {reviews.length} 条评论 · 基于公开资料与系统策展</p>
+          <p>{spots.length ? `${spots.length} 个系统推荐` : '系统暂无推荐'} · {reviews.length} 条评论</p>
         </div>
       </div>
 
@@ -86,6 +87,17 @@ export function RecommendScreen() {
           )}
         </div>
 
+        {spots.length === 0 ? (
+          <div className="rec-no-spots">
+            <div className="ic"><Icon name="compass" size={28} /></div>
+            <h2>系统暂无推荐</h2>
+            <p>这座城市还没有经过核验的景区目录。等真实旅行者的推荐积累起来后，我们再把它纳入系统推荐。</p>
+            <button className="btn ghost" onClick={() => navigate(`/discover?tab=recommend&city=${encodeURIComponent(name)}&adcode=${adcode}`)}>
+              <Icon name="message" size={14} />去发现页看看用户推荐
+            </button>
+          </div>
+        ) : (
+          <>
         <div className="chips rec-chips">
           {categories.map((c) => (
             <button key={c} className={`chip${filter === c ? ' on' : ''}`} onClick={() => setFilter(c)}>{c}</button>
@@ -110,7 +122,12 @@ export function RecommendScreen() {
           {filtered.map((spot) => (
             <article className="spot-card" key={spot.id}>
               <div className="spot-img">
-                <img src={spot.image} alt={spot.name} />
+                {spot.image ? <img src={spot.image} alt={spot.name} /> : (
+                  <div className="spot-img-empty">
+                    <b>{spot.name}</b>
+                    <span>{spot.city} · 系统目录</span>
+                  </div>
+                )}
                 <div className="spot-veil" />
                 <span className="spot-badge">系统推荐</span>
               </div>
@@ -180,16 +197,20 @@ export function RecommendScreen() {
         <p className="rec-note">
           系统推荐综合公开资料整理；评论只在你或他人真实发布后出现。营业时间、票价可能调整，出发前请再确认。
         </p>
+          </>
+        )}
       </div>
 
-      <div className="rec-sticky">
-        <button className="rec-cta" onClick={() => goDiscover('recommend')}>
-          <span>推荐与评论</span><b>{recommendCount}</b>
-        </button>
-        <button className="rec-cta avoid" onClick={() => goDiscover('avoid')}>
-          <span>避坑指南</span><b>{avoidCount}</b>
-        </button>
-      </div>
+      {spots.length > 0 ? (
+        <div className="rec-sticky">
+          <button className="rec-cta" onClick={() => goDiscover('recommend')}>
+            <span>推荐与评论</span><b>{recommendCount}</b>
+          </button>
+          <button className="rec-cta avoid" onClick={() => goDiscover('avoid')}>
+            <span>避坑指南</span><b>{avoidCount}</b>
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
